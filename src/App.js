@@ -1,25 +1,52 @@
-import logo from './logo.svg';
+import { useState } from 'react';
 import './App.css';
 
-function App() {
+function MyButton({fun, count}) {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <button onClick={fun}>Clicked {count} times</button>
+  )
+}
+
+const welcome = {
+  name: 'World'
+}
+
+const myList = [{
+  title: 'G',
+  url: 'google.com',
+  objectID: 0}, 
+  {
+    title: 'FB',
+    url: 'facebook.com',
+    objectID: 1
+  }];
+
+  const myListItems = myList.map((item) => {
+    return (
+      <div key={item.objectID}>
+        <span><a href={item.url}><h3>{item.title}</h3></a></span>
+      </div>
+    );
+  })
+function App() {
+
+  let [count, setCount] = useState(0);
+
+  function handleClick(){
+    setCount(count+1);
+  }
+
+  return (
+    <>
+      <h1>Hacker Stories</h1>
+      <label htmlFor="search">Search: </label>
+      <input id="search" type="text" />
+      <hr />
+      <MyButton count={count} fun={handleClick} />
+      <MyButton count={count} fun={handleClick} />
+    <ul>{myListItems}</ul>
+    </>
+);
 }
 
 export default App;
