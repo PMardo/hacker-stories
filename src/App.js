@@ -16,6 +16,24 @@ const List = ({ items }) => {
   })
 } 
 
+const Search = ({ onSearch }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const handleChange = event => {
+    setSearchTerm(event.target.value);
+    onSearch(event);
+
+  };
+
+  return (
+    <div>
+      <label htmlFor="search">Search: </label>
+      <input id="search" type="text" onChange={handleChange}/>
+      <p>Searching for <strong>{searchTerm}</strong></p>
+    </div>
+  )
+}
+
 const App = () =>  {
   const stories =  [{
     title: 'G',
@@ -27,20 +45,18 @@ const App = () =>  {
       objectID: 1
     }];
 
-  const [searchTerm, setSearchTerm] = useState('');
-
-  const handleChange = event => {
-    setSearchTerm(event.target.value)
-  };
+  const onSearchHandle = (event) => {
+    console.log(event.target.value);
+  }
 
   return (
     <>
       <h1>Hacker Stories</h1>
-      <label htmlFor="search">Search: </label>
-      <input id="search" type="text" onChange={handleChange}/>
-      <p>Searching for <strong>{searchTerm}</strong></p>
+      <Search onSearch={onSearchHandle} /> 
       <hr />
-    <ul><List items={stories}/></ul>
+      <ul>
+        <List items={stories} />
+      </ul>
     </>
 );
 }
