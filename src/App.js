@@ -7,14 +7,14 @@ const welcome = {
 }
 
 const List = ({ items }) => {
-  return items.map((item) => {
-    return (
-      <div key={item.objectID}>
-        <span><a href={item.url}><h3>{item.title}</h3></a></span>
-      </div>
-    );
-  })
+  return items.map(( {objectID, ...item}) => <Item key={objectID} {...item} />);
 } 
+
+const Item = ({ title, author, url }) => {
+  return (
+    <span><a href={url}><h3>{title} by {author}</h3></a></span>
+  )
+}
 
 const Search = ({ onSearch, searchTerm }) => {
 
@@ -46,7 +46,7 @@ const App = () =>  {
       url: 'https://en.wikipedia.org/wiki/Harry_Potter',
       objectID: 3,
     }];
-    const [searchTerm, setSearchTerm] = useState('Goog');
+    const [searchTerm, setSearchTerm] = useState('1984');
 
     const handleSearch = (event) => {
       setSearchTerm(event.target.value);
