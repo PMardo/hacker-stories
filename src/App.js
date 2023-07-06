@@ -30,13 +30,21 @@ const Search = ({ onSearch, searchTerm }) => {
 
 const App = () =>  {
   const stories =  [{
-    title: 'Google',
-    url: 'google.com',
+    title: '1984',
+    author: 'George Orwell',
+    url: 'https://en.wikipedia.org/wiki/Nineteen_Eighty-Four',
     objectID: 0}, 
     {
-      title: 'Facebook',
-      url: 'facebook.com',
+      title: 'The Lord of the Rings',
+      author: 'J.R.R. Tolkien',
+      url: 'https://en.wikipedia.org/wiki/The_Lord_of_the_Rings',
       objectID: 1
+    },
+    {
+      title: 'Harry Potter',
+      author: 'J.K. Rowling',
+      url: 'https://en.wikipedia.org/wiki/Harry_Potter',
+      objectID: 3,
     }];
     const [searchTerm, setSearchTerm] = useState('Goog');
 
