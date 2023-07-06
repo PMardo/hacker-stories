@@ -22,7 +22,7 @@ const Search = ({ onSearch, searchTerm }) => {
   return (
     <div>
       <label htmlFor="search">Search: </label>
-      <input id="search" type="text" onChange={onSearch}/>
+      <input id="search" type="text" value={searchTerm} onChange={onSearch}/>
       <p>Searching for <strong>{searchTerm}</strong></p>
     </div>
   )
@@ -38,7 +38,7 @@ const App = () =>  {
       url: 'facebook.com',
       objectID: 1
     }];
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchTerm, setSearchTerm] = useState('Goog');
 
     const handleSearch = (event) => {
       setSearchTerm(event.target.value);
