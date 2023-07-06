@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 
 
@@ -28,6 +28,14 @@ const Search = ({ onSearch, searchTerm }) => {
   )
 }
 
+const useSemiPerminentState = (key, initialValue) => {
+  const [value, setValue] = React.useState(
+    localStorage.getItem(key) || initialValue);
+  useEffect(() => localStorage.setItem(key, value), [value]);
+
+  return [value, setValue]
+}
+
 const App = () =>  {
   const stories =  [{
     title: '1984',
@@ -47,10 +55,7 @@ const App = () =>  {
       objectID: 3,
     }];
 
-    const [searchTerm, setSearchTerm] = useState(
-      localStorage.getItem('search') || '1984');
-
-    useEffect(() => localStorage.setItem('search', searchTerm), [searchTerm]);
+    const [searchTerm, setSearchTerm] = useSemiPermanentState('search', '1984');
     
     const handleSearch = (event) => {
       setSearchTerm(event.target.value);
