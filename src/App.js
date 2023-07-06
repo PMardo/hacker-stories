@@ -16,19 +16,13 @@ const List = ({ items }) => {
   })
 } 
 
-const Search = ({ onSearch }) => {
-  const [searchTerm, setSearchTerm] = useState('');
+const Search = ({ onSearch, searchTerm }) => {
 
-  const handleChange = event => {
-    setSearchTerm(event.target.value);
-    onSearch(event);
-
-  };
 
   return (
     <div>
       <label htmlFor="search">Search: </label>
-      <input id="search" type="text" onChange={handleChange}/>
+      <input id="search" type="text" onChange={onSearch}/>
       <p>Searching for <strong>{searchTerm}</strong></p>
     </div>
   )
@@ -36,26 +30,31 @@ const Search = ({ onSearch }) => {
 
 const App = () =>  {
   const stories =  [{
-    title: 'G',
+    title: 'Google',
     url: 'google.com',
     objectID: 0}, 
     {
-      title: 'FB',
+      title: 'Facebook',
       url: 'facebook.com',
       objectID: 1
     }];
+    const [searchTerm, setSearchTerm] = useState('');
 
-  const onSearchHandle = (event) => {
-    console.log(event.target.value);
-  }
+    const handleSearch = (event) => {
+      setSearchTerm(event.target.value);
+    };
 
+    const searchedStories = stories.filter((story) => {
+      return story.title.toLowerCase().includes(searchTerm.toLowerCase()) && story.title;
+    })
+    
   return (
     <>
       <h1>Hacker Stories</h1>
-      <Search onSearch={onSearchHandle} /> 
+      <Search onSearch={handleSearch} searchTerm={searchTerm} /> 
       <hr />
       <ul>
-        <List items={stories} />
+        <List items={searchedStories} />
       </ul>
     </>
 );
