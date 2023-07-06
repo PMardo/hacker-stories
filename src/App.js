@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 
 
@@ -46,8 +46,12 @@ const App = () =>  {
       url: 'https://en.wikipedia.org/wiki/Harry_Potter',
       objectID: 3,
     }];
-    const [searchTerm, setSearchTerm] = useState('1984');
 
+    const [searchTerm, setSearchTerm] = useState(
+      localStorage.getItem('search') || '1984');
+
+    useEffect(() => localStorage.setItem('search', searchTerm), [searchTerm]);
+    
     const handleSearch = (event) => {
       setSearchTerm(event.target.value);
     };
