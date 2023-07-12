@@ -68,16 +68,24 @@ const initStories = [{
   objectID: 3}];
 
 const getAsyncStories = () => {
-  return new Promise(res => setTimeout(
-    () => res({data: {stories: initStories}}), 
-    2000));
+  return new Promise(resolve => 
+    setTimeout(() => resolve({data: {stories: initStories}}), 
+    2000)
+  );
 }
 
 const App = () =>  {
+    const [isLoading, setIsLoading] = useState(false);
+    const [isError, setIsError] = useState(false);
+
     const [stories, setStories] = useState([]);
     React.useEffect(() => {
+      setIsLoading(true);
       getAsyncStories().then(result => {
         setStories(result.data.stories);
+        setIsLoading(false);
+      }).catch(error => {
+        setIsError(true);
       });
     }, []);
   
@@ -102,9 +110,15 @@ const App = () =>  {
 
       <InputWithLabel id="search" handleInput={handleSearch} input={searchTerm} ><strong>Search</strong></InputWithLabel> 
       <hr />
-      <ul>
+     {isError && (<p>Something went wrong...</p>)}
+     {isLoading ? 
+      (<p>Loading...</p>) : 
+      (<ul>
         <List items={searchedStories} handleRemoveItem={removeStory}/>
       </ul>
+      )}
+
+      
     </>
 );
 }
