@@ -73,10 +73,7 @@ const getAsyncStories = () => {
     2000));
 }
 
-
-
 const App = () =>  {
-
     const [stories, setStories] = useState([]);
     React.useEffect(() => {
       getAsyncStories().then(result => {
