@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 
 
@@ -6,29 +6,46 @@ const welcome = {
   name: 'World'
 }
 
-const List = ({ items }) => {
-  return items.map(( {objectID, ...item}) => <Item key={objectID} {...item} />);
+const List = ({ items, handleRemoveItem }) => {
+
+  return items.map(( item ) => <Item key={item.objectID} onRemoveItem={handleRemoveItem} item={item} />);
 } 
 
-const Item = ({ title, author, url }) => {
+const Item = ({ item, onRemoveItem }) => {
+
+  // Normal Handler
+  // const handleRemoveItem = () => {
+  //   return onRemoveItem(item);
+  // }
+  // Inline Handler: 
   return (
-    <span><a href={url}><h3>{title} by {author}</h3></a></span>
+    <>
+      <a href={item.url}><h3>{item.title} by {item.author}</h3></a>
+      <button type="button" onClick={() => onRemoveItem(item)}>Dismiss</button>
+    </>
   )
 }
 
-const Search = ({ onSearch, searchTerm }) => {
-
+// Imperative example: This is what you're going to do (what vs how)
+const InputWithLabel = (
+  { id, input, type="text", handleInput, isFocused, children }) => {
+  const inputRef = useRef();
+  useEffect(() => {
+    if (isFocused) {
+    inputRef.current.focus();
+    }
+  }, [isFocused]);
 
   return (
     <div>
-      <label htmlFor="search">Search: </label>
-      <input id="search" type="text" value={searchTerm} onChange={onSearch}/>
-      <p>Searching for <strong>{searchTerm}</strong></p>
+      <label htmlFor={id}>{children}:</label>
+      &nbsp;
+      <input id={id} type={type} value={input} onChange={handleInput} ref={inputRef} />
     </div>
   )
 }
 
-const useSemiPerminentState = (key, initialValue) => {
+const useSemiPermanentState = (key, initialValue) => {
   const [value, setValue] = React.useState(
     localStorage.getItem(key) || initialValue);
   useEffect(() => localStorage.setItem(key, value), [value]);
@@ -36,24 +53,41 @@ const useSemiPerminentState = (key, initialValue) => {
   return [value, setValue]
 }
 
+const initStories = [{
+  title: '1984',
+  author: 'George Orwell',
+  url: 'https://en.wikipedia.org/wiki/Nineteen_Eighty-Four',
+  objectID: 0}, {
+  title: 'The Lord of the Rings',
+  author: 'J.R.R.Tolkien',
+  url: 'https://en.wikipedia.org/wiki/The_Lord_of_the_Rings',
+  objectID: 1}, {
+  title: 'Harry Potter',
+  author: 'J.K. Rowling',
+  url: 'https://en.wikipedia.org/wiki/Harry_Potter',
+  objectID: 3}];
+
+const getAsyncStories = () => {
+  return new Promise(res => setTimeout(
+    () => res({data: {stories: initStories}}), 
+    2000));
+}
+
+
+
 const App = () =>  {
-  const stories =  [{
-    title: '1984',
-    author: 'George Orwell',
-    url: 'https://en.wikipedia.org/wiki/Nineteen_Eighty-Four',
-    objectID: 0}, 
-    {
-      title: 'The Lord of the Rings',
-      author: 'J.R.R. Tolkien',
-      url: 'https://en.wikipedia.org/wiki/The_Lord_of_the_Rings',
-      objectID: 1
-    },
-    {
-      title: 'Harry Potter',
-      author: 'J.K. Rowling',
-      url: 'https://en.wikipedia.org/wiki/Harry_Potter',
-      objectID: 3,
-    }];
+
+    const [stories, setStories] = useState([]);
+    React.useEffect(() => {
+      getAsyncStories().then(result => {
+        setStories(result.data.stories);
+      });
+    }, []);
+  
+    const removeStory = (removeStory) => {
+      const keepStories = stories.filter((story) => story.objectID != removeStory.objectID);
+      setStories(keepStories);
+    }
 
     const [searchTerm, setSearchTerm] = useSemiPermanentState('search', '1984');
     
@@ -68,10 +102,11 @@ const App = () =>  {
   return (
     <>
       <h1>Hacker Stories</h1>
-      <Search onSearch={handleSearch} searchTerm={searchTerm} /> 
+
+      <InputWithLabel id="search" handleInput={handleSearch} input={searchTerm} ><strong>Search</strong></InputWithLabel> 
       <hr />
       <ul>
-        <List items={searchedStories} />
+        <List items={searchedStories} handleRemoveItem={removeStory}/>
       </ul>
     </>
 );
