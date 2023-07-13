@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef, useReducer} from 'react';
 import './App.css';
 
+const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query='; 
+
 const List = ({ items, handleRemoveItem }) => {
   return items.map(( item ) => <Item key={item.objectID} onRemoveItem={handleRemoveItem} item={item} />);
 } 
@@ -14,9 +16,10 @@ const Item = ({ item, onRemoveItem }) => {
   )
 }
 
-// Imperative example: This is what you're going to do (what vs how)
 const InputWithLabel = (
   { id, input, type="text", handleInput, isFocused, children }) => {
+  
+  // isFocused use is just an imperative example (what's going to happen vs how)
   const inputRef = useRef();
   useEffect(() => {
     if (isFocused) {
@@ -31,27 +34,6 @@ const InputWithLabel = (
       <input id={id} type={type} value={input} onChange={handleInput} ref={inputRef} />
     </div>
   )
-}
-
-const initStories = [{
-  title: '1984',
-  author: 'George Orwell',
-  url: 'https://en.wikipedia.org/wiki/Nineteen_Eighty-Four',
-  objectID: 0}, {
-  title: 'The Lord of the Rings',
-  author: 'J.R.R.Tolkien',
-  url: 'https://en.wikipedia.org/wiki/The_Lord_of_the_Rings',
-  objectID: 1}, {
-  title: 'Harry Potter',
-  author: 'J.K. Rowling',
-  url: 'https://en.wikipedia.org/wiki/Harry_Potter',
-  objectID: 3}];
-
-const getAsyncStories = () => {
-  return new Promise((resolve, reject) => 
-    setTimeout(() => resolve({data: {stories: initStories}}), 
-    2000)
-  );
 }
 
 const useSemiPermanentState = (key, initialValue) => {
@@ -94,17 +76,23 @@ const App = () =>  {
       {data: [], isLoading: false, isError: false});
     React.useEffect(() => {
       dispatchStories({ type: 'STORIES_FETCH_INITIALIZE' });
-      getAsyncStories().then(result => {
-        dispatchStories({type: 'STORIES_FETCH_SUCCESS', 
-        payload: result.data.stories});
-      }).catch(() => dispatchStories({ type: 'STORIES_FETCH_FAILURE' }));
+      fetch(`${API_ENDPOINT}react`)
+        .then(response => response.json())
+        .then(result => {
+          dispatchStories({
+            type: 'STORIES_FETCH_SUCCESS',
+            payload: result.hits,
+          });
+        })
+        .catch(() => dispatchStories({ type: 'STORIES_FETCH_FAILURE' }));
     }, []);
     
     const removeStory = (removeStory) => {
       dispatchStories({type: 'STORIES_REMOVE_ITEM', payload: removeStory});
     }
   
-    const [searchTerm, setSearchTerm] = useSemiPermanentState('search', '1984');
+    const [searchTerm, setSearchTerm] = useSemiPermanentState(
+      'search', 'Javascript');
     const handleSearch = (event) => {
       setSearchTerm(event.target.value);
     };
