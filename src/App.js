@@ -1,23 +1,11 @@
 import React, { useState, useEffect, useRef, useReducer} from 'react';
 import './App.css';
 
-
-const welcome = {
-  name: 'World'
-}
-
 const List = ({ items, handleRemoveItem }) => {
-
   return items.map(( item ) => <Item key={item.objectID} onRemoveItem={handleRemoveItem} item={item} />);
 } 
 
 const Item = ({ item, onRemoveItem }) => {
-
-  // Normal Handler
-  // const handleRemoveItem = () => {
-  //   return onRemoveItem(item);
-  // }
-  // Inline Handler: 
   return (
     <>
       <a href={item.url}><h3>{item.title} by {item.author}</h3></a>
@@ -102,26 +90,6 @@ const storiesReducer = (state, action) => {
 }
 
 const App = () =>  {
-  // Hook: useState to manage story state
-  // const [isLoading, setIsLoading] = useState(false);
-    // const [isError, setIsError] = useState(false);  
-    // const [stories, setStories] = useState([]);
-    // React.useEffect(() => {
-    //   setIsLoading(true);
-    //   getAsyncStories().then(result => {
-    //     setStories(result.data.stories);
-    //     setIsLoading(false);
-    //   }).catch(error => {
-    //     setIsError(true);
-    //   });
-    // }, []);
-    //  
-    // const removeStory = (removeStory) => {
-    //   const keepStories = stories.filter((story) => story.objectID != removeStory.objectID);
-    //   setStories(keepStories);
-    // }
-
-    // Hook: useReducer to manage story state
     const [stories, dispatchStories] = useReducer(storiesReducer, 
       {data: [], isLoading: false, isError: false});
     React.useEffect(() => {
@@ -133,7 +101,6 @@ const App = () =>  {
     }, []);
     
     const removeStory = (removeStory) => {
-      // now useReducer
       dispatchStories({type: 'STORIES_REMOVE_ITEM', payload: removeStory});
     }
   
