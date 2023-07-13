@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useReducer} from 'react';
 import './App.css';
 
 
@@ -45,14 +45,6 @@ const InputWithLabel = (
   )
 }
 
-const useSemiPermanentState = (key, initialValue) => {
-  const [value, setValue] = React.useState(
-    localStorage.getItem(key) || initialValue);
-  useEffect(() => localStorage.setItem(key, value), [value]);
-
-  return [value, setValue]
-}
-
 const initStories = [{
   title: '1984',
   author: 'George Orwell',
@@ -74,32 +66,65 @@ const getAsyncStories = () => {
   );
 }
 
+const useSemiPermanentState = (key, initialValue) => {
+  const [value, setValue] = React.useState(
+    localStorage.getItem(key) || initialValue);
+  useEffect(() => localStorage.setItem(key, value), [value]);
+
+  return [value, setValue]
+}
+
+const storiesReducer = (state, action) => {
+  switch (action.type) { 
+   case 'SET_STORIES': return action.payload;
+   case 'REMOVE_STORY': return state.filter((story) => {
+    return story.objectID != action.payload.objectID;
+   });
+   default: throw new Error();
+  }
+}
+
 const App = () =>  {
     const [isLoading, setIsLoading] = useState(false);
     const [isError, setIsError] = useState(false);
-
-    const [stories, setStories] = useState([]);
-    React.useEffect(() => {
-      setIsLoading(true);
-      getAsyncStories().then(result => {
-        setStories(result.data.stories);
-        setIsLoading(false);
-      }).catch(error => {
-        setIsError(true);
-      });
-    }, []);
+    const [stories, dispatchStories] = useReducer(storiesReducer, []);
   
-    const removeStory = (removeStory) => {
-      const keepStories = stories.filter((story) => story.objectID != removeStory.objectID);
-      setStories(keepStories);
-    }
+    // Hook: useState to manage story state
+    // const [stories, setStories] = useState([]);
+    // React.useEffect(() => {
+    //   setIsLoading(true);
+    //   getAsyncStories().then(result => {
+    //     setStories(result.data.stories);
+    //     setIsLoading(false);
+    //   }).catch(error => {
+    //     setIsError(true);
+    //   });
+    // }, []);
+    //  
+    // const removeStory = (removeStory) => {
+    //   const keepStories = stories.filter((story) => story.objectID != removeStory.objectID);
+    //   setStories(keepStories);
+    // }
 
+    // Hook: useReducer to manage story state
+    React.useEffect(() => {
+      // uses existing useState hook for loading
+      setIsLoading(true);
+      // now useReducer
+      getAsyncStories().then(result => {
+        dispatchStories({type: 'SET_STORIES', payload: result.data.stories});
+        setIsLoading(false);
+      }).catch(() => setIsError(true));
+    }, []);
+    const removeStory = (removeStory) => {
+      // now useReducer
+      dispatchStories({type: 'REMOVE_STORY', payload: removeStory});
+    }
+  
     const [searchTerm, setSearchTerm] = useSemiPermanentState('search', '1984');
-    
     const handleSearch = (event) => {
       setSearchTerm(event.target.value);
     };
-
     const searchedStories = stories.filter((story) => {
       return story.title.toLowerCase().includes(searchTerm.toLowerCase()) && story.title;
     })
