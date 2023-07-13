@@ -39,6 +39,7 @@ const InputWithLabel = (
 const useSemiPermanentState = (key, initialValue) => {
   const [value, setValue] = React.useState(
     localStorage.getItem(key) || initialValue);
+
   useEffect(() => localStorage.setItem(key, value), [value]);
 
   return [value, setValue]
@@ -78,12 +79,19 @@ const App = () =>  {
       setSearchTerm(event.target.value);
     };
 
+    const [searchTermUrl, setSearchTermUrl] = useState(
+      `${API_ENDPOINT}${searchTerm}`);
+    const handleSearchSubmit = () => {
+      setSearchTermUrl(`${API_ENDPOINT}${searchTerm}`);
+    }
+
     const fetchStories = useCallback(() => {
+
       if (searchTerm === '') return;
 
       dispatchStories({ type: 'STORIES_FETCH_INITIALIZE' });
       
-      fetch(`${API_ENDPOINT}${searchTerm}`)
+      fetch(searchTermUrl)
       .then(response => response.json())
       .then(result => {
         dispatchStories({
@@ -92,7 +100,7 @@ const App = () =>  {
         });
       })
       .catch(() => dispatchStories({ type: 'STORIES_FETCH_FAILURE' }));
-    }, [searchTerm]);
+    }, [searchTermUrl]);
 
     const [stories, dispatchStories] = useReducer(storiesReducer, 
       {data: [], isLoading: false, isError: false});
@@ -108,7 +116,8 @@ const App = () =>  {
     <>
       <h1>Hacker Stories</h1>
 
-      <InputWithLabel id="search" handleInput={handleSearch} input={searchTerm} ><strong>Search</strong></InputWithLabel> 
+      <InputWithLabel id="search" handleInput={handleSearch} input={searchTerm} ><strong>Search</strong></InputWithLabel>
+      <button type="button" disabled={!searchTerm} onClick={handleSearchSubmit}>Submit</button> 
       <hr />
      {stories.isError && (<p>Something went wrong...</p>)}
      {stories.isLoading ? 
