@@ -19,7 +19,7 @@ const Item = ({ item, onRemoveItem }) => {
 }
 
 const InputWithLabel = (
-  { id, input, type="text", handleInput, isFocused, children }) => {
+  { id, input, type="text", onInputChange, isFocused, children }) => {
   
   // isFocused use is just an imperative example (what's going to happen vs how)
   const inputRef = useRef();
@@ -33,8 +33,29 @@ const InputWithLabel = (
     <div>
       <label htmlFor={id}>{children}:</label>
       &nbsp;
-      <input id={id} type={type} value={input} onChange={handleInput} ref={inputRef} />
+      <input id={id} type={type} value={input} onChange={onInputChange} ref={inputRef} />
     </div>
+  )
+}
+
+const SearchForm = ({searchTerm, onSearch, onSubmit}) => {
+
+  return (
+    <form onSubmit={onSubmit}>
+      <InputWithLabel
+        id="search"
+        value={searchTerm}
+        isFocused
+        onInputChange={onSearch}>
+        <strong>Search</strong>
+      </InputWithLabel>
+  
+      <button 
+        type="submit" 
+        disabled={!searchTerm}>
+        Submit
+      </button>
+    </form> 
   )
 }
 
@@ -83,8 +104,9 @@ const App = () =>  {
 
     const [searchTermUrl, setSearchTermUrl] = useState(
       `${API_ENDPOINT}${searchTerm}`);
-    const handleSearchSubmit = () => {
+    const handleSearchSubmit = (event) => {
       setSearchTermUrl(`${API_ENDPOINT}${searchTerm}`);
+      event.preventDefault();
     }
 
     const fetchStories = useCallback( async () => {
@@ -101,13 +123,14 @@ const App = () =>  {
         dispatchStories({ type: 'STORIES_FETCH_FAILURE' });
       }
     }, [searchTermUrl]);
-
-    const [stories, dispatchStories] = useReducer(storiesReducer, 
-      {data: [], isLoading: false, isError: false});
+      
     React.useEffect(() => {
       fetchStories();
     }, [fetchStories]);
     
+    const [stories, dispatchStories] = useReducer(storiesReducer, 
+      {data: [], isLoading: false, isError: false});
+
     const removeStory = (removeStory) => {
       dispatchStories({type: 'STORIES_REMOVE_ITEM', payload: removeStory});
     }
@@ -116,20 +139,22 @@ const App = () =>  {
     <>
       <h1>Hacker Stories</h1>
 
-      <InputWithLabel id="search" handleInput={handleSearch} input={searchTerm} ><strong>Search</strong></InputWithLabel>
-      <button type="button" disabled={!searchTerm} onClick={handleSearchSubmit}>Submit</button> 
+      <SearchForm 
+        searchTerm={searchTerm} 
+        onSearch={handleSearch} 
+        onSubmit={handleSearchSubmit} />
       <hr />
-     {stories.isError && (<p>Something went wrong...</p>)}
-     {stories.isLoading ? 
-      (<p>Loading...</p>) : 
-      (<ul>
-        <List items={stories.data} handleRemoveItem={removeStory}/>
-      </ul>
-      )}
-
       
+      {stories.isError && (<p>Something went wrong...</p>)}
+      
+      {stories.isLoading ? (<p>Loading...</p>) :
+       (<ul>
+          <List items={stories.data} handleRemoveItem={removeStory}/>
+        </ul>)
+      }
+
     </>
-);
+  );
 }
 
 export default App;
